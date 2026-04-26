@@ -1,21 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-
-typedef struct Report {
-    int ReportID;
-    char InspectorName[100];
-    float GPScoordinates;
-    char Issue[15];
-    int Severitylevel;
-    time_t Timestamp;
-    char Description[200];
-}Report;
+#include "CityManager.h"
 
 
 int main(int argc, char *argv[]) {
