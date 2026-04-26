@@ -2,10 +2,7 @@
 
 
 int main(int argc, char *argv[]) {
-    if (argc!=4) {
-        printf("Nu sunt destule argumente");
-        exit(-1);
-    }
+
 
     int file_handler=open("reports.dat", O_RDONLY,S_IWUSR);
 
@@ -40,6 +37,13 @@ int main(int argc, char *argv[]) {
     }else {
         printf("You don't have access");
     }
+
+
+    Report r1 = {1, "", 45.0, 25.0, "Gropi", 5, 0, "Descriere test"};
+    add_report("District1", "Ion", "manager", r1);
+
+    Report r2 = {2, "", 46.0, 26.0, "Iluminat", 3, 0, "Descriere test 2"};
+    add_report("District2", "Vasile", "inspector", r2);
 
     close(file_handler);
 
