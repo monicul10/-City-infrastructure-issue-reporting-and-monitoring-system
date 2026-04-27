@@ -191,6 +191,25 @@ void remove_report(const char *district_id,int report_id, const char *role) {
     close(fd);
 }
 
+void remove_district(const char *district_dir,const char *role) {
+  pid_t pid=fork();
+  if (pid<0) {
+    perror("fork");
+    exit(1);
+  }
+  pid_t status=wait(&status);
+
+  if(pid==0){
+      printf("Child process created\n");
+      if(role=="manager") {
+            char *comanda="rm -rf ";
+            execlp(comanda,comanda,district_dir,NULL);
+            printf("Status child process = %d\n",status);
+      }
+  }
+}
+
+
 void update_threshold(const char *district, int new, const char *role) {
     if (strcmp(role,"manager")!=0) {
         printf("You don't have access\n");
