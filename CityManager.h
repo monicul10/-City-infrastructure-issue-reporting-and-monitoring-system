@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 
 typedef struct Report {
@@ -24,7 +25,11 @@ typedef struct Report {
 void add_report(const char *district_id, const char *user, const char *role, Report r);
 void list_reports(const char *district_id);
 void update_threshold(const char *district_id, int value, const char *role);
-//void log_operation(const char *district_id, const char *user, const char *role, const char *op);
 int check_access(const char *path,const char*role,int required_bit_manager, int required_bit_inspector);
+void view_report(const char *district_id, int id);
+void remove_report(const char *district_id, int report_id, const char *role);
+void filter_reports(const char *district_id, const char *condition_str);
+void remove_district(const char *district_dir, const char *role);
+void log_operation(const char *district_id);
 
 #endif //_CITY_INFRASTRUCTURE_ISSUE_REPORTING_AND_MONITORING_SYSTEM_CITYMANAGER_H

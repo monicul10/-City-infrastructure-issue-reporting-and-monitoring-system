@@ -94,7 +94,6 @@ void list_reports(const char *district_id) {
     }
 
     Report r;
-    int count=0;
 
     while (read(fd, &r, sizeof(Report)) == sizeof(Report)) {
         printf("ID: %d | Inspector: %s | Category: %s | Severity: %d\n",
@@ -192,23 +191,40 @@ void remove_report(const char *district_id,int report_id, const char *role) {
 }
 
 void remove_district(const char *district_dir,const char *role) {
-  pid_t pid=fork();
-  if (pid<0) {
-    perror("fork");
-    exit(1);
-  }
-  pid_t status=wait(&status);
+    if (strcmp(role, "manager") != 0) {
+        printf("Access denied. Manager role required.\n");
+        return;
+    }
 
-  if(pid==0){
-      printf("Child process created\n");
-      if(role=="manager") {
-            char *comanda="rm -rf ";
-            execlp(comanda,comanda,district_dir,NULL);
-            printf("Status child process = %d\n",status);
-      }
-  }
+    pid_t pid=fork();
+    if (pid<0) {
+        perror("fork");
+        exit(1);
+    }
+
+    if(pid==0) {
+        printf("Child process created\n");
+
+        execlp("rm", "rm", "-rf", district_dir, (char *)NULL);
+        perror("execlp");
+        exit(1);
+    }else {
+          int status;
+          waitpid(pid,&status,0);
+
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            printf("District directory %s deleted successfully.\n", district_dir);
+
+            // Ștergerea symlink-ului
+            char link_name[256];
+            sprintf(link_name, "active_reports-%s", district_dir);
+            unlink(link_name); // Ștergre link-ul simbolic
+            printf("Symlink %s removed.\n", link_name);
+        } else {
+            printf("Error: rm -rf failed to delete district.\n");
+        }
+    }
 }
-
 
 void update_threshold(const char *district, int new, const char *role) {
     if (strcmp(role,"manager")!=0) {
@@ -244,5 +260,76 @@ void update_threshold(const char *district, int new, const char *role) {
     }else {
         printf("Severity level updated.\n");
     }
+    close(fd);
+}
+
+void log_operation(const char *district_id) {
+    char path[256];
+    sprintf(path,"%s/logged_district",district_id);
+
+    int fd=open(path,O_WRONLY|O_CREAT|O_APPEND,0644);
+    if (fd<0) {
+        perror("open");
+        return;
+    }
+
+    time_t t=time(NULL);
+    char *str=ctime(&t);
+    if (str[strlen(str)-1]=='\n') {
+        str[strlen(str)-1]='\0';
+    }
+
+    char buff[256];
+    int length=sprintf(buff,"%s\n",str);
+    write(fd,buff,length);
+    close(fd);
+}
+
+int evaluate_condition(int value,const char *op, int target_value) {
+    if (strcmp(op, ">=") == 0) return value >= target_value;
+    if (strcmp(op, "<=") == 0) return value <= target_value;
+    if (strcmp(op, "==") == 0) return value == target_value;
+    if (strcmp(op, ">") == 0)  return value > target_value;
+    if (strcmp(op, "<") == 0)  return value < target_value;
+    if (strcmp(op, "!=") == 0) return value != target_value;
+    return 0;
+}
+
+int parse_condition(const char *input, char *field, char *op, char *value) {
+    if (sscanf(input, "%[^:]:%[^:]:%s", field, op, value) == 3) {
+        return 1;
+    }
+    return 0;
+}
+
+void filter_reports(const char *district_id, const char *condition_str) {
+    char field[32], op[3], val_str[64];
+    if (!parse_condition(condition_str, field, op, val_str)) {
+        printf("Format conditie invalid! (ex: severity:>=:3)\n");
+        return;
+    }
+
+    char path[256];
+    sprintf(path, "%s/reports.dat", district_id);
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) { perror("open reports.dat"); return; }
+
+    Report r;
+    int found = 0;
+    while (read(fd, &r, sizeof(Report)) == sizeof(Report)) {
+        int match = 0;
+        if (strcmp(field, "severity") == 0) {
+            match = evaluate_condition(r.Severitylevel, op, atoi(val_str));
+        } else if (strcmp(field, "category") == 0 || strcmp(field, "issue") == 0) {
+            if (strcmp(op, "==") == 0) match = (strcmp(r.Issue, val_str) == 0);
+        }
+
+        if (match) {
+            printf("ID: %d | Cat: %s | Sev: %d | Inspector: %s\n",
+                   r.ReportID, r.Issue, r.Severitylevel, r.InspectorName);
+            found = 1;
+        }
+    }
+    if (!found) printf("Niciun rezultat gasit.\n");
     close(fd);
 }

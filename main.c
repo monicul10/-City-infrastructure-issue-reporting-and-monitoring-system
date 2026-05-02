@@ -1,54 +1,76 @@
 #include "CityManager.h"
 
+/**
+ * Exemplu de rulare:
+ * ./city_manager --district D1 --user Ion --role manager --action add
+ */
 
 int main(int argc, char *argv[]) {
-
-
-    int file_handler=open("reports.dat", O_RDONLY,S_IWUSR);
-
-    char *role=argv[2];
-    int flag;
-    if (strcmp(role, "manager")==0) {
-        flag=chmod("reports.dat", O_APPEND|S_IWUSR);
-        if (flag==-1) {
-            perror("chmod");
-        }
-        flag=chmod("district.cfg", O_APPEND|S_IWUSR);
-        if (flag==-1) {
-            perror("chmod");
-        }
-        flag=chmod("logged_district.log", O_APPEND|S_IWUSR);
-        if (flag==-1) {
-            perror("chmod");
-        }
-    }else if(strcmp(role, "inspector")==0) {
-        flag=chmod("reports.dat", O_APPEND|S_IWUSR);
-        if (flag==-1) {
-            perror("chmod");
-        }
-        flag=chmod("district.cfg", O_APPEND);
-        if (flag==-1) {
-            perror("chmod");
-        }
-        flag=chmod("logged_district.log", O_APPEND);
-        if (flag==-1) {
-            perror("chmod");
-        }
-    }else {
-        printf("You don't have access");
+    // Verificare minimă de argumente
+    if (argc < 7) {
+        printf("Utilizare: %s --district <id> --user <nume> --role <manager/inspector> --action <add/list/update/remove>\n", argv[0]);
+        return 1;
     }
 
+    // Extragere argumente (presupunem ordinea fixa pentru simplitate in Phase 1)
+    const char *dist = argv[2];
+    const char *user = argv[4];
+    const char *role = argv[6];
+    const char *action = argv[8];
 
-    Report r1 = {1, "", 45.0, 25.0, "Gropi", 5, 0, "Descriere test"};
-    add_report("District1", "Ion", "manager", r1);
+    // Verificare rol
+    if (strcmp(role, "manager") != 0 && strcmp(role, "inspector") != 0) {
+        printf("Eroare: Rol invalid (%s). Acces refuzat.\n", role);
+        return 1;
+    }
 
-    Report r2 = {2, "", 46.0, 26.0, "Iluminat", 3, 0, "Descriere test 2"};
-    add_report("District2", "Vasile", "inspector", r2);
+    // Logica de comenzi
+    if (strcmp(action, "add") == 0) {
+        Report r;
+        printf("Introdu ID Raport: "); scanf("%d", &r.ReportID);
+        printf("Introdu Categorie: "); scanf("%s", r.Issue);
+        printf("Introdu Severitate (1-5): "); scanf("%d", &r.Severitylevel);
+        getchar(); // consuma newline-ul ramas
+        printf("Introdu Descriere: "); fgets(r.Description, 96, stdin);
 
-    close(file_handler);
+        add_report(dist, user, role, r);
+        log_operation(dist); // Logarea operatiunii
+    }
+
+    else if (strcmp(action, "list") == 0) {
+        list_reports(dist);
+        log_operation(dist);
+    }
+
+    else if (strcmp(action, "update") == 0) {
+        if (argc < 10) {
+            printf("Lipseste valoarea pragului! (--value <nr>)\n");
+            return 1;
+        }
+        int new_val = atoi(argv[10]);
+        update_threshold(dist, new_val, role);
+        log_operation(dist);
+    }
+
+    else if (strcmp(action, "filter") == 0) {
+        if (argc < 10) {
+            printf("Lipseste conditia! (ex: severity:>=:3)\n");
+            return 1;
+        }
+         filter_reports(dist, argv[10]);
+    }
+
+    else if (strcmp(action, "remove") == 0) {
+        if (argc < 10) {
+            printf("Lipseste ID-ul raportului!\n");
+            return 1;
+        }
+        int id_to_del = atoi(argv[10]);
+        remove_report(dist, id_to_del, role);
+        log_operation(dist);
+    }
 
     return 0;
-
 }
 
 
