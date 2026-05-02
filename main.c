@@ -1,18 +1,11 @@
 #include "CityManager.h"
 
-/**
- * Exemplu de rulare:
- * ./city_manager --district D1 --user Ion --role manager --action add
- */
-
 int main(int argc, char *argv[]) {
-    // Verificare minimă de argumente
     if (argc < 7) {
         printf("Utilizare: %s --district <id> --user <nume> --role <manager/inspector> --action <add/list/update/remove>\n", argv[0]);
         return 1;
     }
 
-    // Extragere argumente (presupunem ordinea fixa pentru simplitate in Phase 1)
     const char *dist = argv[2];
     const char *user = argv[4];
     const char *role = argv[6];
@@ -24,7 +17,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Logica de comenzi
     if (strcmp(action, "add") == 0) {
         Report r;
         printf("Introdu ID Raport: "); scanf("%d", &r.ReportID);
