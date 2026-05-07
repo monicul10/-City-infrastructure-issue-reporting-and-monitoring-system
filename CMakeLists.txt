@@ -6,4 +6,5 @@ set(CMAKE_C_STANDARD 11)
 add_executable(_City_infrastructure_issue_reporting_and_monitoring_system
         CityManager.c
         main.c
-        CityManager.h)
+        CityManager.h
+        monitor_reports.c)

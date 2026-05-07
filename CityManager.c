@@ -65,7 +65,7 @@ void add_report(const char *district_id,const char *user, const char *role, Repo
     unlink(link_name); // Șterge link-ul vechi dacă există
     symlink(path, link_name);
 
-    //log_operation(district_id,user,role,"add");
+    log_operation(district_id);
 }
 
 void list_reports(const char *district_id) {
@@ -332,4 +332,44 @@ void filter_reports(const char *district_id, const char *condition_str) {
     }
     if (!found) printf("Niciun rezultat gasit.\n");
     close(fd);
+}
+
+void notify_monitor(const char *district_id) {
+    char log_path[256];
+    sprintf(log_path,"%s/monitor.log",district_id);
+
+    int log_fd=open(".monitor_pid",O_WRONLY | O_CREAT | O_APPEND, 0644);
+    char log_msg[256];
+    int informed=0;
+
+    int pid_fd = open(".monitor_pid", O_RDONLY);
+    if (pid_fd != -1) {
+        char pid_str[16];
+        int n = read(pid_fd, pid_str, sizeof(pid_str) - 1);
+        close(pid_fd);
+
+        if (n > 0) {
+            pid_str[n] = '\0';
+            pid_t m_pid = atoi(pid_str);
+
+            // Trimitem semnalul SIGUSR1
+            if (kill(m_pid, SIGUSR1) == 0) {
+                informed = 1;
+                sprintf(log_msg, "[%ld] Monitor informat cu succes (PID %d).\n", time(NULL), m_pid);
+            } else {
+                sprintf(log_msg, "[%ld] Eroare: Trimiterea semnalului a esuat.\n", time(NULL));
+            }
+        }
+    } else {
+        sprintf(log_msg, "[%ld] Eroare: Monitorul nu a putut fi informat (fisier PID lipsa).\n", time(NULL));
+    }
+
+    if (log_fd != -1) {
+        write(log_fd, log_msg, strlen(log_msg));
+        close(log_fd);
+    }
+
+    if (informed) printf("Monitorul a fost notificat.\n");
+    else printf("Atentie: Monitorul NU a putut fi informat (vezi log).\n");
+
 }
