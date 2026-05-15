@@ -1,6 +1,6 @@
 #include "CityManager.h"
 
-void start_monitor_logic() {
+void start_monitor() {
     int pipefd[2];
     if (pipe(pipefd) == -1) { perror("pipe"); return; }
 

@@ -33,6 +33,6 @@ void filter_reports(const char *district_id, const char *condition_str);
 void remove_district(const char *district_dir, const char *role);
 void log_operation(const char *district_id);
 void notify_monitor(const char *district_id);
-void start_monitor_logic();
+void start_monitor();
 
 #endif //_CITY_INFRASTRUCTURE_ISSUE_REPORTING_AND_MONITORING_SYSTEM_CITYMANAGER_H
