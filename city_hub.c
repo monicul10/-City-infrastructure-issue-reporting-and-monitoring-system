@@ -25,15 +25,33 @@ void start_monitor() {
                 printf("\n[HUB-MON] Monitorul s-a oprit.\n");
                 break;
             }
+            //fflush(stdout);
         }
         close(pipefd[0]);
         exit(0);
     }
 }
 
-// void calculating_scores() {
-//
-// }
+void calculating_scores(char **district,int count) {
+    for (int i=0;i<count;i++) {
+        int pid[2];
+        pipe(pid);
+
+        if (fork()==0) {
+            dup2(pid[1], STDOUT_FILENO);
+            close(pid[0]);
+            execl("./monitor_scores", "monitor_scores", NULL);
+            exit(1);
+        }
+        close(pid[1]);
+
+        char res[1024];
+        read(pid[0], res, sizeof(res));
+        printf("District scores: %s --- %s",district[0],res);
+        close(pid[0]);
+    }
+}
+
 
 int main() {
 

@@ -23,11 +23,11 @@ int check_access(const char *path, const char *role, int required_bit_manager, i
     mode_t current_mode = st.st_mode & 0777;
 
     if (strcmp(role, "manager") == 0) {
-        // Managerii sunt owneri; verificam bitii de owner [cite: 29, 35]
+        // Managerii sunt owneri; verificam bitii de owner
         if (current_mode & required_bit_manager) return 1;
     }
     else if (strcmp(role, "inspector") == 0) {
-        // Inspectorii sunt in grup; verificam bitii de grup [cite: 29]
+        // Inspectorii sunt in grup; verificam bitii de grup
         if (current_mode & required_bit_inspector) return 1;
     }
 
@@ -211,7 +211,6 @@ void remove_district(const char *district_dir,const char *role) {
     }else {
           int status;
           waitpid(pid,&status,0);
-
         if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
             printf("District directory %s deleted successfully.\n", district_dir);
 
