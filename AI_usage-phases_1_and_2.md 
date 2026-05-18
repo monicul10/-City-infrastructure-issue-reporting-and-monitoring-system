@@ -1,0 +1,51 @@
+ AI Usage Report - City Incident Management System
+
+PHASE 1
+
+1. Structura și Manipularea Fișierelor Binare
+Prompt: "Cum pot adăuga un raport într-un fișier binar folosind o structură de dimensiune fixă (208 octeți) și cum gestionez scrierea la finalul fișierului?"
+
+Raspuns AI:
+- Generarea funcției `add_report` utilizând flag-ul `O_APPEND` pentru a asigura scrierea compactă (packed records).
+- Explicarea conceptului de offset fix (`index * sizeof(Report)`) pentru navigarea în fișier binar.
+
+2. Logica de Ștergere prin Shiftare și Trunchiere
+Prompt:"Cum șterg un record din mijlocul unui fișier binar dacă nu pot folosi funcții de nivel înalt?"
+
+Raspuns AI:
+- Implementarea algoritmului de shiftare la stânga: citirea recordului N+1 și suprascrierea recordului N folosind `lseek`.
+- Utilizarea apelului de sistem `ftruncate()` pentru a reduce dimensiunea fizică a fișierului după eliminarea duplicatului de la final.
+
+3. Gestionarea Metadatelor și Permisiunilor Unix
+Prompt:"Cum verific dacă un fișier are permisiunile 640 înainte de a-l modifica și cum transform bitii în format simbolic (rw-r-----)?"
+
+Raspuns AI:
+- Implementarea funcției de diagnostic bazată pe `stat()` și masca de biți `st_mode & 0777`.
+- Crearea unei funcții personalizate de conversie bit-to-symbol, evitând utilizarea comenzilor externe de sistem (cerință Phase 1).
+
+4. Depanare și Refactoring
+Prompt:"Am greșit logica de lseek în bucla de shiftare, de ce sar peste recorduri?"
+
+Raspuns AI:
+- Identificarea erorii de "salt dublu": explicarea faptului că `read()` avansează deja cursorul, iar o a doua incrementare manuală corupe citirea secvențială.
+
+PHASE 2
+
+1.Sincronizarea Fișierelor de Log și Notificarea
+
+Prompt: „Managerul adaugă raportul, dar în log nu apare mereu dacă monitorul a fost informat. Cum forțez scrierea mesajului de eroare/succes imediat?”
+
+Răspuns AI: Sugestia utilizării fsync(log_fd) imediat după write(). De asemenea, AI-ul a corectat logica de verificare a funcției kill(), explicând că aceasta returnează 0 la succes, permițând scrierea mesajelor explicite în logged_district conform cerinței.
+
+2.Debugging
+
+"Nu merge ștergerea districtului deși funcția este apelată. În plus, am observat că logica de notificare este inversată: mesajul de succes apare în log doar dacă monitorul NU primește semnalul."
+
+Răspuns AI: Identificarea greșelilor de numire/verificare a variabilelor (comanda se întâmpla dacă nu se trimitea semnal).
+
+PHASE 3
+
+1.Sugestii pentru implementarea functiei "start_monitor"
+
+Răspuns AI: Explicarea logicii din spatele functiei.
+
