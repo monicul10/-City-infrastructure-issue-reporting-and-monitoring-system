@@ -51,9 +51,3 @@ void calculating_scores(char **district,int count) {
         close(pid[0]);
     }
 }
-
-
-int main() {
-
-    return 0;
-}

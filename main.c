@@ -57,5 +57,7 @@ int main(int argc, char *argv[]) {
         remove_district(district, role);
     }
 
+
+
     return 0;
 }

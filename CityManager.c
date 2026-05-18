@@ -318,7 +318,7 @@ void filter_reports(const char *district_id, const char *condition_str) {
     while (read(fd, &r, sizeof(Report)) == sizeof(Report)) {
         int match = 0;
         if (strcmp(field, "severity") == 0) {
-            match = evaluate_condition(r.Severitylevel, op, atoi(val_str));
+            match = evaluate_condition(r.Severitylevel, op, atoi(val_str)); //better with strtol
         } else if (strcmp(field, "category") == 0 || strcmp(field, "issue") == 0) {
             if (strcmp(op, "==") == 0) match = (strcmp(r.Issue, val_str) == 0);
         }
