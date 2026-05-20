@@ -38,11 +38,25 @@ int check_access(const char *path, const char *role, int required_bit_manager, i
 void add_report(const char *district_id,const char *user, const char *role, Report r) {
     char path[256];
     char link_name[256];
+    char cfg_path[256];
 
     sprintf(path,"%s/reports.dat",district_id);
 
     if (mkdir(district_id,0750)==-1) {  //creeaza directorul daca nu exista
         chmod(district_id,0750); //daca exista -> verifica permisiuni
+    }
+
+    int cfg_test = open(cfg_path, O_RDONLY);
+    if (cfg_test < 0) {
+        int cfg_fd = open(cfg_path, O_WRONLY | O_CREAT | O_TRUNC, 0640);
+        if (cfg_fd >= 0) {
+            char cfg_content[256];
+            sprintf(cfg_content, "District: %s\nCreated_By: %s\nStatus: ACTIVE\n", district_id, user);
+            write(cfg_fd, cfg_content, strlen(cfg_content));
+            close(cfg_fd);
+        }
+    }else {
+        close(cfg_test);
     }
 
     int fd=open(path,O_WRONLY| O_CREAT| O_APPEND,0664);

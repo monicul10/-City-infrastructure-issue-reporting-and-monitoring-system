@@ -1,20 +1,15 @@
 #include "CityManager.h"
 
 int main(int argc, char *argv[]) {
-    // Verificăm să avem destule argumente pentru apelul tău
-    // [0]./city_manager [1]--role [2]manager [3]--user [4]alice [5]--district [6]downtown [7]--add
     if (argc < 7) {
         printf("Utilizare: %s --role <r> --user <u> --district <d> --action\n", argv[0]);
         return 1;
     }
 
-    // Mapăm variabilele exact după poziția din comanda ta:
     const char *role     = argv[2]; // manager
     const char *user     = argv[4]; // alice
     const char *district = argv[6]; // downtown
-    // Acțiunea este la argv[7] sau argv[5] în funcție de cum scrii
 
-    // Verificăm ce acțiune ai pus (căutăm în argumentele de la final)
     char *action = "";
     for(int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--add") == 0) action = "add";
@@ -29,7 +24,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Logica de comenzi (exact cum ai avut-o)
     if (strcmp(action, "add") == 0) {
         Report r;
         printf("Introdu ID Raport: "); scanf("%d", &r.ReportID);
@@ -45,7 +39,6 @@ int main(int argc, char *argv[]) {
         list_reports(district);
     }
     else if (strcmp(action, "view") == 0) {
-        // Dacă dai --view 1, ID-ul va fi următorul argument după --view
         int id_to_view = 0;
         for(int i = 1; i < argc; i++) {
             if (strcmp(argv[i], "--view") == 0 && i+1 < argc)
