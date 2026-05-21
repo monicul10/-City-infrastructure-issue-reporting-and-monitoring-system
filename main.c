@@ -27,8 +27,12 @@ int main(int argc, char *argv[]) {
     if (strcmp(action, "add") == 0) {
         Report r;
         printf("Introdu ID Raport: "); scanf("%d", &r.ReportID);
-        printf("Introdu Categorie: "); scanf("%s", r.Issue);
+        printf("Introdu Categorie: ");
+        fgets(r.Issue, sizeof(r.Issue), stdin);
+        r.Issue[strcspn(r.Issue, "\n")] = '\0';
         printf("Introdu Severitate (1-5): "); scanf("%d", &r.Severitylevel);
+        printf("Introdu Coordonata X: "); scanf("%lf", &r.Latitude);
+        printf("Introdu Coordonata Y: "); scanf("%lf", &r.Longitude);
         getchar();
         printf("Introdu Descriere: "); fgets(r.Description, 96, stdin);
 
@@ -49,8 +53,6 @@ int main(int argc, char *argv[]) {
     else if (strcmp(action, "remove_district") == 0) {
         remove_district(district, role);
     }
-
-
 
     return 0;
 }
